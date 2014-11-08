@@ -86,7 +86,7 @@ end
 
 def getInputVC
   puts
-  puts "In order to use the preview of the calculator, please type your equation in the rows respectively. ONLY USE X AS VARIABLE AND NO PARANTHESES!! ALSO, USING ANY DECIMAL NUMBERS OR CREATING ANY CALCULATIONS IN WHICH THE ANSWER WILL BE DECIMAL (SUCH AS 5/10) WILL PROBABLY NOT WORK DUE TO A BUG WITH THE EVAL METHOD. THIS IS CURRENTLY NOT FIXABLE"
+  puts "In order to use the preview of the calculator, please type your equation in the rows respectively. ONLY USE X AS VARIABLE, DONT USE ANY EXPONENTIALS OR ROOTS AND NO PARANTHESES!! ALSO, USING ANY DECIMAL NUMBERS OR CREATING ANY CALCULATIONS IN WHICH THE ANSWER WILL BE DECIMAL (SUCH AS 5/10) WILL PROBABLY NOT WORK DUE TO A BUG WITH THE EVAL METHOD. THIS IS CURRENTLY NOT FIXABLE"
   puts "Please enter the left row:"
   vlv = gets.chomp
   puts "The left row specified is: #{vlv}."
@@ -115,20 +115,21 @@ def calculateVC(vlv, hlv)
   separation.each do |line|
     line = line.gsub("_", "-")
     line = line.gsub("~", "/")
-    line = line.gsub("_", "-")
-        
     if line.index("x") == nil and line.index("X") == nil
+      puts "ifv"      #DB
       line = eval(line)
       line = line.to_f
       vlvn += line
     elsif line.index("*") == nil and line.index("/") == nil
+      puts "elsifv"             #DB
       line = line.to_f
       if line == 0
         vlvx += 1
       else
         vlvx += line
       end 
-    else    
+    else
+      puts "elsev"                 # DEBUG
       while line.index("x") != nil
         np = line.index("x") - 1
         if line[np].to_f != 0
@@ -138,8 +139,10 @@ def calculateVC(vlv, hlv)
         end
       end
       line = eval(line)
-      hlvx += line.to_f
+      vlvx += line.to_f
     end
+    puts "VLVX per line: #{vlvx}"   #DB
+    puts "VLVN per line: #{vlvn}"   #DB
   end
 
   separation = hlv.split(/(?=[+-])/)
@@ -147,32 +150,48 @@ def calculateVC(vlv, hlv)
   separation.each do |line|
     line = line.gsub("_", "-")
     line = line.gsub("~", "/")
-    line = line.gsub("_", "-")
     if line.index("x") == nil and line.index("X") == nil
+      puts "ifh"                                              # DEBUG
       line = eval(line)
       line = line.to_f
       hlvn += line
     elsif line.index("*") == nil and line.index("/") == nil
-      line = line.to_f
-      if line == 0
-        hlvx += 1
-      else
-        hlvx += line
+      puts "elsifh"                                           # DEBUG
+      np = line.index("x") - 1
+        if line[np] =~ /[[:digit:]]/
+          line = line.gsub("x", "")
+          vlvx += line.to_f
+        elsif np = "-"
+          vlvx -= 1
+        else
+          vlvx += 1
+        end
       end
     else
+      puts "elseh"                                              # DEBUG
       while line.index("x") != nil
-        np = line.index("x") - 1
-        if line[np].to_f != 0
-          line = line.sub("x", "")
-        else
+        if line.index("x") == 0
           line = line.sub("x", "1")
+        else
+          np = line.index("x") - 1
+          if line[np] =~ /[[:digit:]]/
+            line = line.sub("x", "")
+          else
+            line = line.sub("x", "1")
+          end
         end
       end
       line = eval(line)
       hlvx += line.to_f
     end
+    puts "HLVX per line: #{hlvx}"   #DB
+    puts "HLVN per line: #{hlvn}"   #DB
   end
   
+  puts "VLVX: #{vlvx}"
+  puts "HLVX: #{hlvx}"
+  puts "VLVN: #{vlvn}"
+  puts "HLVN: #{hlvn}"
   vlv = vlvx + hlvx*(-1)
   puts "VLV: #{vlv}"    #ENABLE FOR DEBUG
   hlv = hlvn + vlvn*(-1)
