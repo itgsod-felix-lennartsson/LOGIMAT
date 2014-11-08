@@ -1,15 +1,17 @@
-####################   LOGIMAT 1.2 ALPHA        EQUATION CALCULATOR ####################
+####################   LOGIMAT 1.5 ALPHA        EQUATION CALCULATOR ####################
 
 #   BUGS:
 #
 #   - EVAL DOES NOT CALCULATE PROPERLY (I.E 1/5 = 0 != true)
-#   - HAVING A SINGLE X AS THE FIRST CHAR (0) WHEN LINE GOES THROUGH SINGLE OR SEVERAL X'S CHECK IN CALCVC CAUSES PROBLEMS, AS THE LAST CHAR IN THE STRING WILL BE READ IN ORDER
-#     TO DETERMINE IF X IS SINGLE OR NOT. EXCEPTION IS REQUIRED FOR THIS
-#   - LOADS OF OTHER PROBLEMS
+#   - SEVERAL OTHER PROBLEMS
+#
+#   REMEMBER:
+#
+#   - REMOVE DB's if you want to run the program without debugging
 
 # Variables
 
-$ver = "1.2 ALPHA"
+$ver = "1.5 ALPHA"
 $fr = true
 
 # Functions
@@ -25,51 +27,52 @@ def putIntro
   else
     puts
     puts "Would you like to perform another calculation. Type Y if yes, or N if no:"
-    sel = gets.chomp
-    until sel == "y" or sel == "Y" or sel == "n" or sel == "N"
-      puts
+    puts
+    sel = gets.chomp.downcase
+    puts
+    until sel == "y" or sel == "n"
       puts "You have typed an invalid letter. Try again!"
       puts
-      sel = gets.chomp
+      sel = gets.chomp.downcase
+      puts
     end
-    if sel == "Y" or sel == "y"
-      puts
+    if sel == "y"
       puts "Please state which function you would like to use by typing the letter in front of the corresponding function:"
-    elsif sel == "n" or sel == "N"
-      puts
-      puts
+    else
       puts "Ok, bye bye!"
       sleep (2)
       exit
     end
   end
   puts
-  puts "(D) Difference calculator (calculates different between two sides)"
-  puts "(V) Variable calculator (calculates the value of a specified variable within the equation."
-  puts "(E) Exit (terminates the program)"
-  sel = gets.chomp
-  until sel == "d" or sel == "D" or sel == "v" or sel == "V" or sel == "e" or sel == "E"
-    puts
+  puts "(D) Difference calculator"
+  puts "(V) Variable calculator"
+  puts "(E) Exit"
+  puts
+  sel = gets.chomp.downcase
+  puts
+  until sel == "d" or sel == "v" or sel == "e"
     puts "You have typed an invalid letter. Try again!"
     puts
-    sel = gets.chomp
+    sel = gets.chomp.downcase
+    puts
   end
-  if sel == "d" or sel == "D"
+  if sel == "d"
     puts "Starting DC (Difference Calculator)..."
     sleep(1)
-    getInputDC
-  elsif sel == "v" or sel == "V"
+    getInputandCalculateDC
+  elsif sel == "v"
     puts "Starting VC (Variable Calculator)..."
     sleep(1)
     getInputVC
-  elsif sel == "e" or sel == "E"
+  elsif sel == "e"
     puts "Bye bye!"
     sleep (2)
     puts
   end
 end
 
-def getInputDC
+def getInputandCalculateDC
   puts
   puts "Please enter the left row:"
   vld = gets.chomp
@@ -88,11 +91,11 @@ def getInputVC
   puts
   puts "In order to use the preview of the calculator, please type your equation in the rows respectively. ONLY USE X AS VARIABLE, DONT USE ANY EXPONENTIALS OR ROOTS AND NO PARANTHESES!! ALSO, USING ANY DECIMAL NUMBERS OR CREATING ANY CALCULATIONS IN WHICH THE ANSWER WILL BE DECIMAL (SUCH AS 5/10) WILL PROBABLY NOT WORK DUE TO A BUG WITH THE EVAL METHOD. THIS IS CURRENTLY NOT FIXABLE"
   puts "Please enter the left row:"
-  vlv = gets.chomp
+  vlv = gets.chomp.downcase
   puts "The left row specified is: #{vlv}."
   puts
   puts "Please enter the right row:"
-  hlv = gets.chomp
+  hlv = gets.chomp.downcase
   puts "The right row specified is: #{hlv}."
   puts
   calculateVC(vlv, hlv)
@@ -115,27 +118,38 @@ def calculateVC(vlv, hlv)
   separation.each do |line|
     line = line.gsub("_", "-")
     line = line.gsub("~", "/")
-    if line.index("x") == nil and line.index("X") == nil
+    if line.index("x") == nil
       puts "ifv"      #DB
       line = eval(line)
       line = line.to_f
       vlvn += line
     elsif line.index("*") == nil and line.index("/") == nil
       puts "elsifv"             #DB
-      line = line.to_f
-      if line == 0
+      if line.index("x") == 0
         vlvx += 1
       else
-        vlvx += line
-      end 
+        np = line.index("x") - 1
+        if line[np] =~ /[[:digit:]]/
+          line = line.gsub("x", "")
+          vlvx += line.to_f
+        elsif line[np] == "-"
+          vlvx -= 1
+        else
+          vlvx += 1
+        end
+      end
     else
       puts "elsev"                 # DEBUG
       while line.index("x") != nil
-        np = line.index("x") - 1
-        if line[np].to_f != 0
-          line = line.sub("x", "")
-        else
+        if line.index("x") == 0
           line = line.sub("x", "1")
+        else
+          np = line.index("x") - 1
+          if line[np] =~ /[[:digit:]]/
+            line = line.sub("x", "")
+          else
+            line = line.sub("x", "1")
+          end
         end
       end
       line = eval(line)
@@ -150,21 +164,24 @@ def calculateVC(vlv, hlv)
   separation.each do |line|
     line = line.gsub("_", "-")
     line = line.gsub("~", "/")
-    if line.index("x") == nil and line.index("X") == nil
+    if line.index("x") == nil
       puts "ifh"                                              # DEBUG
       line = eval(line)
       line = line.to_f
       hlvn += line
     elsif line.index("*") == nil and line.index("/") == nil
       puts "elsifh"                                           # DEBUG
-      np = line.index("x") - 1
+      if line.index("x") == 0
+        hlvx +=1
+      else
+        np = line.index("x") - 1
         if line[np] =~ /[[:digit:]]/
           line = line.gsub("x", "")
-          vlvx += line.to_f
-        elsif np = "-"
-          vlvx -= 1
+          hlvx += line.to_f
+        elsif line[np] == "-"
+          hlvx -=1
         else
-          vlvx += 1
+          hlvx += 1
         end
       end
     else
@@ -225,23 +242,4 @@ end
 
 putIntro
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+########################################################################################
