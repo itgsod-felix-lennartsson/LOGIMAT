@@ -1,9 +1,15 @@
-####################   LOGIMAT 1.0 ALPHA        EQUATION CALCULATOR ####################
+####################   LOGIMAT 1.2 ALPHA        EQUATION CALCULATOR ####################
 
+#   BUGS:
+#
+#   - EVAL DOES NOT CALCULATE PROPERLY (I.E 1/5 = 0 != true)
+#   - HAVING A SINGLE X AS THE FIRST CHAR (0) WHEN LINE GOES THROUGH SINGLE OR SEVERAL X'S CHECK IN CALCVC CAUSES PROBLEMS, AS THE LAST CHAR IN THE STRING WILL BE READ IN ORDER
+#     TO DETERMINE IF X IS SINGLE OR NOT. EXCEPTION IS REQUIRED FOR THIS
+#   - LOADS OF OTHER PROBLEMS
 
 # Variables
 
-$ver = "1.0 ALPHA"
+$ver = "1.2 ALPHA"
 $fr = true
 
 # Functions
@@ -53,8 +59,8 @@ def putIntro
     sleep(1)
     getInputDC
   elsif sel == "v" or sel == "V"
-    puts "Starting VC (Variable Calculator). PLEASE NOTE: THIS CALCULATOR IS YET IN EARLY ALPHA. PLEASE DON'T USE FOR ANYTHING MORE THAN TESTING PURPOSES!!!"
-    sleep(5)
+    puts "Starting VC (Variable Calculator)..."
+    sleep(1)
     getInputVC
   elsif sel == "e" or sel == "E"
     puts "Bye bye!"
@@ -80,7 +86,7 @@ end
 
 def getInputVC
   puts
-  puts "In order to use the preview of the calculator, please type your equation in the rows respectively. ONLY USE X AS VARIABLE, AND NO PARANTHESES!!"
+  puts "In order to use the preview of the calculator, please type your equation in the rows respectively. ONLY USE X AS VARIABLE AND NO PARANTHESES!! ALSO, USING ANY DECIMAL NUMBERS OR CREATING ANY CALCULATIONS IN WHICH THE ANSWER WILL BE DECIMAL (SUCH AS 5/10) WILL PROBABLY NOT WORK DUE TO A BUG WITH THE EVAL METHOD. THIS IS CURRENTLY NOT FIXABLE"
   puts "Please enter the left row:"
   vlv = gets.chomp
   puts "The left row specified is: #{vlv}."
@@ -110,6 +116,7 @@ def calculateVC(vlv, hlv)
     line = line.gsub("_", "-")
     line = line.gsub("~", "/")
     line = line.gsub("_", "-")
+        
     if line.index("x") == nil and line.index("X") == nil
       line = eval(line)
       line = line.to_f
@@ -122,10 +129,16 @@ def calculateVC(vlv, hlv)
         vlvx += line
       end 
     else    
-      line = line.gsub("x", "")
-      line = line.gsub("X", "")
+      while line.index("x") != nil
+        np = line.index("x") - 1
+        if line[np].to_f != 0
+          line = line.sub("x", "")
+        else
+          line = line.sub("x", "1")
+        end
+      end
       line = eval(line)
-      vlvx += line.to_f
+      hlvx += line.to_f
     end
   end
 
@@ -147,15 +160,23 @@ def calculateVC(vlv, hlv)
         hlvx += line
       end
     else
-      line = line.gsub("x", "")
-      line = line.gsub("X", "")
+      while line.index("x") != nil
+        np = line.index("x") - 1
+        if line[np].to_f != 0
+          line = line.sub("x", "")
+        else
+          line = line.sub("x", "1")
+        end
+      end
       line = eval(line)
       hlvx += line.to_f
     end
   end
   
   vlv = vlvx + hlvx*(-1)
+  puts "VLV: #{vlv}"    #ENABLE FOR DEBUG
   hlv = hlvn + vlvn*(-1)
+  puts "HLV: #{hlv}"    #ENABLE FOR DEBUG
   hlv = hlv/vlv
   vlv = vlv/vlv
   
@@ -184,5 +205,24 @@ end
 # Runcode
 
 putIntro
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
