@@ -1,17 +1,25 @@
-####################   LOGIMAT 1.5 ALPHA        EQUATION CALCULATOR ####################
+####################   LOGIMAT 1.7 ALPHA        EQUATION CALCULATOR ####################
 
 #   BUGS:
 #
-#   - EVAL DOES NOT CALCULATE PROPERLY (I.E 1/5 = 0 != true)
-#   - SEVERAL OTHER PROBLEMS
+#   - NO CURRENTLY KNOWN
 #
 #   REMEMBER:
 #
 #   - REMOVE DB's if you want to run the program without debugging
+#
+#   TODO:
+#
+#   - Optimize code
+#   - Make parantheses a thing
+#   - Let the user select variable name
+#   - Add VC output check
+#   - Add restrictions to not allow typing in invalid inputs in getInputVC and getInputandCalculateDC
+
 
 # Variables
 
-$ver = "1.5 ALPHA"
+$ver = "1.7 ALPHA"
 $fr = true
 
 # Functions
@@ -89,7 +97,7 @@ end
 
 def getInputVC
   puts
-  puts "In order to use the preview of the calculator, please type your equation in the rows respectively. ONLY USE X AS VARIABLE, DONT USE ANY EXPONENTIALS OR ROOTS AND NO PARANTHESES!! ALSO, USING ANY DECIMAL NUMBERS OR CREATING ANY CALCULATIONS IN WHICH THE ANSWER WILL BE DECIMAL (SUCH AS 5/10) WILL PROBABLY NOT WORK DUE TO A BUG WITH THE EVAL METHOD. THIS IS CURRENTLY NOT FIXABLE"
+  puts "NOTE: AS THIS IS A PREVIEW, DON'T USE ANY OTHER VARIABLE NAME THAN X, AND DON'T USE PARANTHESES. THESE FUNCTIONS DO NOT WORK YET!!"
   puts "Please enter the left row:"
   vlv = gets.chomp.downcase
   puts "The left row specified is: #{vlv}."
@@ -106,25 +114,38 @@ def calculateVC(vlv, hlv)
   vlvx = 0
   hlvn = 0
   hlvx = 0
+  tn = 0
   vlv = vlv.gsub(" ", "")
   vlv = vlv.gsub("*-", "*_")
   vlv = vlv.gsub("/", "~")
+  vlv = vlv.gsub(",",".")
   hlv = hlv.gsub(" ", "")
   hlv = hlv.gsub("*-", "*_")
   hlv = hlv.gsub("/", "~")
+  hlv = hlv.gsub(",", ".")
     
   separation = vlv.split(/(?=[+-])/)
 
   separation.each do |line|
     line = line.gsub("_", "-")
-    line = line.gsub("~", "/")
     if line.index("x") == nil
-      puts "ifv"      #DB
-      line = eval(line)
-      line = line.to_f
-      vlvn += line
-    elsif line.index("*") == nil and line.index("/") == nil
-      puts "elsifv"             #DB
+      f = true
+      separation = line.split(/(?=[*~])/)
+      
+      separation.each do |line2|
+        if f == true
+          tn = line2.to_f
+          f = false
+        elsif line2[0] == "*"
+          line2 = line2.sub("*", "")
+          tn = tn*line2.to_f
+        else
+          line2 = line2.sub("~", "")
+          tn = tn/line2.to_f
+        end
+      end
+      vlvn += tn
+    elsif line.index("*") == nil and line.index("~") == nil
       if line.index("x") == 0
         vlvx += 1
       else
@@ -139,7 +160,7 @@ def calculateVC(vlv, hlv)
         end
       end
     else
-      puts "elsev"                 # DEBUG
+      f = true
       while line.index("x") != nil
         if line.index("x") == 0
           line = line.sub("x", "1")
@@ -152,25 +173,46 @@ def calculateVC(vlv, hlv)
           end
         end
       end
-      line = eval(line)
-      vlvx += line.to_f
+      separation = line.split(/(?=[*~])/)
+      
+      separation.each do |line3|
+        if f == true
+          tn = line3.to_f
+          f = false
+        elsif line3[0] == "*"
+          line3 = line3.sub("*", "")
+          tn = tn*line3.to_f
+        else
+          line3 = line3.sub("~", "")
+          tn = tn/line3.to_f
+        end
+      end
+      vlvx += tn
     end
-    puts "VLVX per line: #{vlvx}"   #DB
-    puts "VLVN per line: #{vlvn}"   #DB
   end
 
   separation = hlv.split(/(?=[+-])/)
   
   separation.each do |line|
     line = line.gsub("_", "-")
-    line = line.gsub("~", "/")
     if line.index("x") == nil
-      puts "ifh"                                              # DEBUG
-      line = eval(line)
-      line = line.to_f
-      hlvn += line
-    elsif line.index("*") == nil and line.index("/") == nil
-      puts "elsifh"                                           # DEBUG
+      f = true
+      separation = line.split(/(?=[*~])/)
+      
+      separation.each do |line2|
+        if f == true
+          tn = line2.to_f
+          f = false
+        elsif line2[0] == "*"
+          line2 = line2.sub("*", "")
+          tn = tn*line2.to_f
+        else
+          line2 = line2.sub("~", "")
+          tn = tn/line2.to_f
+        end
+      end
+      hlvn += tn
+    elsif line.index("*") == nil and line.index("~") == nil
       if line.index("x") == 0
         hlvx +=1
       else
@@ -185,7 +227,7 @@ def calculateVC(vlv, hlv)
         end
       end
     else
-      puts "elseh"                                              # DEBUG
+      f = true
       while line.index("x") != nil
         if line.index("x") == 0
           line = line.sub("x", "1")
@@ -198,23 +240,26 @@ def calculateVC(vlv, hlv)
           end
         end
       end
-      line = eval(line)
-      hlvx += line.to_f
+      separation = line.split(/(?=[*~])/)
+      
+      separation.each do |line3|
+        if f == true
+          tn = line3.to_f
+          f = false
+        elsif line3[0] == "*"
+          line3 = line3.sub("*", "")
+          tn = tn*line3.to_f
+        else
+          line3 = line3.sub("~", "")
+          tn = tn/line3.to_f
+        end
+      end
+      hlvx += tn
     end
-    puts "HLVX per line: #{hlvx}"   #DB
-    puts "HLVN per line: #{hlvn}"   #DB
   end
-  
-  puts "VLVX: #{vlvx}"
-  puts "HLVX: #{hlvx}"
-  puts "VLVN: #{vlvn}"
-  puts "HLVN: #{hlvn}"
   vlv = vlvx + hlvx*(-1)
-  puts "VLV: #{vlv}"    #ENABLE FOR DEBUG
   hlv = hlvn + vlvn*(-1)
-  puts "HLV: #{hlv}"    #ENABLE FOR DEBUG
   hlv = hlv/vlv
-  vlv = vlv/vlv
   
   putOutputVC(hlv)
 end
