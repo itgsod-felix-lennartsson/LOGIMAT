@@ -1,4 +1,4 @@
-####################   LOGIMAT 1.7 ALPHA        EQUATION CALCULATOR ####################
+####################   LOGIMAT 1.7.1 ALPHA        EQUATION CALCULATOR ####################
 
 #   BUGS:
 #
@@ -19,7 +19,7 @@
 
 # Variables
 
-$ver = "1.7 ALPHA"
+$ver = "1.7.1 ALPHA"
 $fr = true
 
 # Functions
@@ -98,6 +98,7 @@ end
 def getInputVC
   puts
   puts "NOTE: AS THIS IS A PREVIEW, DON'T USE ANY OTHER VARIABLE NAME THAN X, AND DON'T USE PARANTHESES. THESE FUNCTIONS DO NOT WORK YET!!"
+  puts
   puts "Please enter the left row:"
   vlv = gets.chomp.downcase
   puts "The left row specified is: #{vlv}."
