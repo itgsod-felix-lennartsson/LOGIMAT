@@ -190,6 +190,8 @@ def calculateVC(vlv, hlv)
       end
       vlvx += tn
     end
+    puts "VLVX per Line: #{vlvx}"
+    puts "VLVN per Line: #{vlvn}"
   end
 
   separation = hlv.split(/(?=[+-])/)
@@ -257,9 +259,13 @@ def calculateVC(vlv, hlv)
       end
       hlvx += tn
     end
+    puts "HLVX per Line: #{hlvx}"
+    puts "HLVN per Line: #{hlvn}"
   end
   vlv = vlvx + hlvx*(-1)
   hlv = hlvn + vlvn*(-1)
+  puts vlv
+  puts hlv
   hlv = hlv/vlv
   
   putOutputVC(hlv)
